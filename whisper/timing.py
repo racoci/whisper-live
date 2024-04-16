@@ -284,7 +284,7 @@ def add_word_timestamps(
     prepend_punctuations: str = "\"'“¿([{-",
     append_punctuations: str = "\"'.。,，!！?？:：”)]}、",
     last_speech_timestamp: float,
-    live_callback: Callable [[dict], None] = None,
+    live_callback: Callable[[dict], None] = None,
     **kwargs,
 ):
     if len(segments) == 0:

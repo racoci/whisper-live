@@ -112,7 +112,7 @@ class DecodingOptions:
 
     # implementation details
     fp16: bool = True  # use fp16 for most of the calculation
-    live_callback: Callable[[dict], None] = None # Callback to be used when live decoding
+    live_callback: Callable[[dict], None] = None  # Callback to be used when live decoding
 
 
 @dataclass(frozen=True)
