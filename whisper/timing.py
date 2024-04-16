@@ -2,7 +2,7 @@ import itertools
 import subprocess
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Callable
 
 import numba
 import numpy as np
@@ -284,6 +284,7 @@ def add_word_timestamps(
     prepend_punctuations: str = "\"'“¿([{-",
     append_punctuations: str = "\"'.。,，!！?？:：”)]}、",
     last_speech_timestamp: float,
+    live_callback: Callable [[dict], None] = None,
     **kwargs,
 ):
     if len(segments) == 0:
@@ -384,3 +385,5 @@ def add_word_timestamps(
             last_speech_timestamp = segment["end"]
 
         segment["words"] = words
+        if live_callback:
+            live_callback(segment)

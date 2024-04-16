@@ -2,7 +2,7 @@ import argparse
 import os
 import traceback
 import warnings
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union, Callable
 
 import numpy as np
 import torch
@@ -51,6 +51,7 @@ def transcribe(
     append_punctuations: str = "\"'.。,，!！?？:：”)]}、",
     clip_timestamps: Union[str, List[float]] = "0",
     hallucination_silence_threshold: Optional[float] = None,
+    live_callback: Callable[[dict], None] = None,
     **decode_options,
 ):
     """
@@ -112,6 +113,9 @@ def transcribe(
     hallucination_silence_threshold: Optional[float]
         When word_timestamps is True, skip silent periods longer than this threshold (in seconds)
         when a possible hallucination is detected
+
+    live_callback: Callable[[dict], None] = None
+        Callback that is called on every partial result
 
     Returns
     -------
@@ -238,7 +242,7 @@ def transcribe(
     ):
         tokens = tokens.tolist()
         text_tokens = [token for token in tokens if token < tokenizer.eot]
-        return {
+        segment = {
             "seek": seek,
             "start": start,
             "end": end,
@@ -249,6 +253,9 @@ def transcribe(
             "compression_ratio": result.compression_ratio,
             "no_speech_prob": result.no_speech_prob,
         }
+        if live_callback and not word_timestamps:
+            live_callback(segment)
+        return segment
 
     # show the progress bar when verbose is False (if True, transcribed text will be printed)
     with tqdm.tqdm(
@@ -392,6 +399,7 @@ def transcribe(
                     prepend_punctuations=prepend_punctuations,
                     append_punctuations=append_punctuations,
                     last_speech_timestamp=last_speech_timestamp,
+                    live_callback=live_callback
                 )
 
                 if not single_timestamp_ending:
